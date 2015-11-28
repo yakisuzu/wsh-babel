@@ -1,0 +1,18 @@
+{
+  "name": "wsh-babel",
+  "version": "0.1.0",
+  "description": "",
+  "author": "yakisuzu",
+  "license": "MIT",
+  "scripts": {
+    "build-babel": "babel src/* -d dest/",
+    "build-webpack": "./node_modules/.bin/webpack"
+  },
+  "dependencies": {
+    "babel-core": "^6.2.1",
+    "babel-loader": "^6.2.0",
+    "babel-polyfill": "^6.2.0",
+    "babel-preset-es2015": "^6.1.18",
+    "webpack": "^1.12.9"
+  }
+}
