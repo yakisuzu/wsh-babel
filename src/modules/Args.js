@@ -1,8 +1,8 @@
-import {Logger} from './Logger.js';
-
 // ---------------
 // private
 // ---------------
+
+let Logger;
 
 /**
  * @return {Object}
@@ -21,6 +21,10 @@ const msg = (()=>{
  *
  */
 class Args{
+
+  static set Logger(l){
+    Logger = l;
+  }
 
   /**
    * @return {Array<String>}

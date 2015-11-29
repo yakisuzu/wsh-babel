@@ -1,9 +1,10 @@
 import {Utility} from './Utility.js';
-import {Logger} from './Logger.js';
 
 // ---------------
 // private
 // ---------------
+
+let Logger;
 
 const msg = (()=>{
   let m  ={};
@@ -71,6 +72,10 @@ function eachSheet(ws_book, fu_execute){
  *
  */
 class ExcelAdapter{
+
+  static set Logger(l){
+    Logger = l;
+  }
 
   /**
    * @constructor
