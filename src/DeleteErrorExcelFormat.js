@@ -1,33 +1,25 @@
-<job>
-  <script language="JScript" src="./module/Module.js"></script>
-  <script language="JScript" src="./module/Logger.js"></script>
-  <script language="JScript" src="./module/Args.js"></script>
-  <script language="JScript" src="./module/ExcelAdapter.js"></script>
-  <script language="JScript">
-    // import
-    var utility = module.utility;
-    var logger = module.logger;
-    var args = module.args;
-    var excelAdapter = module.excelAdapter;
-    var excel = new excelAdapter.ExcelAdapter();
+import 'babel-polyfill';
+import {Utility} from './modules/Utility.js';
+import {Logger} from './modules/Logger.js';
+import {Args} from './modules/Args.js';
+import {ExcelAdapter} from './modules/ExcelAdapter.js';
 
-    var msg = {};
-    msg.start = 'Wait!';
-    msg.end =  'Done!';
+let excel = new ExcelAdapter();
+excel.read_only = false;
+excel.save = true;
 
-    logger.set.outputLevel(logger.level.ALL);
+let msg = {};
+msg.start = 'Wait!';
+msg.end =  'Done!';
 
-    logger.info(msg.start);
-    logger.print();
+Logger.setting.output_level = Logger.level.ALL;
 
-    excelAdapter.executeExcel(
-      args.getArgs()
-      , function(ws_book){
-        excel.excelErrorFormatDelete(ws_book);
-      }
-    );
+Logger.info(msg.start);
+Logger.print();
 
-    logger.info(msg.end);
-    logger.print();
-  </script>
-</job>
+excel.executeExcel(Args.getArgs(), (ws_book)=>{
+  excel.excelErrorFormatDelete(ws_book);
+});
+
+Logger.info(msg.end);
+Logger.print();

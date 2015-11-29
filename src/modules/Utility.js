@@ -1,4 +1,26 @@
-class Utility(){
+// ---------------
+// private
+// ---------------
+
+const msg = (()=>{
+  let m = {};
+  m.not_import = '{0} has not been imported into the {1} module';
+  m.not_support = '{0} class not support';
+  m.dump_object = 'key : {0}, class : {1}';
+  m.dump_array = 'index : {0}, class : {1}';
+  m.dump_value = 'value : {0}, class : {1}';
+  m.dump_error = 'name : {0}, message : {1}';
+  return m;
+})();
+
+// ---------------
+// public
+// ---------------
+
+/**
+ *
+ */
+class Utility{
 
   /**
    * @param {Object} o
@@ -13,9 +35,9 @@ class Utility(){
    */
   static buildMsg(st_msg, ar_args){
     let st_build = st_msg;
-    for(let i=0; i<ar_args.length; i++){
-      st_build = st_build.replace('{' + i + '}', ar_args[i]);
-    }
+    ar_args.forEach((st_arg, i, self)=>{
+      st_build = st_build.replace('{' + i + '}', st_arg);
+    });
     return st_build;
   }
 
@@ -38,22 +60,21 @@ class Utility(){
 
       switch(st_class){
         case 'Object':
-          for(let key of object){
+          for(let key in object){
             let value = '';
             try{
               value = object[key];
             }catch(e){}
-            echo(buildMsg(getMsg().dump_object, [st_pac + key, getClass(value)]));
+            echo(buildMsg(msg.dump_object, [st_pac + key, getClass(value)]));
             dumpR(value, st_pac + key);
           }
           break;
 
         case 'Array':
-          for(let i = 0; i < object.length; i++){
-            let value = object[i];
-            echo(buildMsg(getMsg().dump_array, [st_pac + i, getClass(value)]));
+          object.forEach((value, i, self)=>{
+            echo(buildMsg(msg.dump_array, [st_pac + i, getClass(value)]));
             dumpR(value, st_pac + i);
-          }
+          });
           break;
 
         case 'Function':
@@ -62,7 +83,7 @@ class Utility(){
           break;
 
         case 'Error':
-          echo(buildMsg(getMsg().dump_error, [object.name, object.message]));
+          echo(buildMsg(msg.dump_error, [object.name, object.message]));
           break;
 
         case 'Boolean':
@@ -71,29 +92,13 @@ class Utility(){
         case 'Math':
         case 'String':
         case 'RegExp':
-          echo(buildMsg(getMsg().dump_value, [object.toString(), getClass(object)]));
+          echo(buildMsg(msg.dump_value, [object.toString(), getClass(object)]));
           break;
 
         default:
-          echo(buildMsg(getMsg().not_support, [st_class]));
+          echo(buildMsg(msg.not_support, [st_class]));
       }
     })(object);
-  }
-
-  /**
-   * @return {Object}
-   */
-  static getMsg(){
-    return (()=>{
-      let m = {};
-      m.not_import = '{0} has not been imported into the {1} module';
-      m.not_support = '{0} class not support';
-      m.dump_object = 'key : {0}, class : {1}';
-      m.dump_array = 'index : {0}, class : {1}';
-      m.dump_value = 'value : {0}, class : {1}';
-      m.dump_error = 'name : {0}, message : {1}';
-      return m;
-    })();
   }
 }
 

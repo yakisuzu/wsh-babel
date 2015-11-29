@@ -1,150 +1,102 @@
-// TODO setting format
-// TODO show line no
-module.logger = (function(){
-  var mod = {};
+import {Utility} from './Utility.js';
 
-  // import
-  var utility = module.utility;
+// ---------------
+// private
+// ---------------
 
-  // static private
-  var ar_output_stock = [];
+const LevelList = (()=>{
+  let level = {};
+  level.TRACE = 1;
+  level.DEBUG = 2;
+  level.INFO = 3;
+  level.WARN = 4;
+  level.ERROR = 5;
+  level.FATAL = 6;
+  return level;
+})();
 
-  /**
-   * Object
-   */
-  mod.level = (function(){
-    var level = {};
-    level.ALL = 0;
-    for(var key in getLevelList()){
-      level[key] = getLevelList()[key];
-    }
-    level.OFF = 9;
-    return level;
-  })();
+const LevelListAll = (()=>{
+  let level = {};
+  level.ALL = 0;
+  for(let key in LevelList){
+    level[key] = LevelList[key];
+  }
+  level.OFF = 9;
+  return level;
+})();
 
-  // static private
-  var ob_output_setting = (function(){
-    var o = {};
-    o.output_level = mod.level.INFO;
-    o.header = function(st_level){return '[' + st_level + ']';};
-    o.linefeed = '\n';
-    o.output = function(st_msg){utility.echo(st_msg);};
-    return o;
-  })();
+let outputSetting = new (class{
+  constructor(){
+    this.output_level = LevelList.INFO;
+    this.header = (st_level)=>{return '[' + st_level + ']';};
+    this.linefeed = '\n';
+    this.output = (st_msg)=>{Utility.echo(st_msg);};
+  }
+})();
 
-  /**
-   * Declare the module in a loop
-   * @param {String} st_text
-   */
-  for(var key in getLevelList()){
-    mod[key.toLowerCase()] = (function(key){
-      return function(st_text){
-        outputPush(key, st_text);
-      };
-    })(key);
+/**
+ *
+ */
+class OutputText{
+  constructor(st_level, st_text){
+    this.level = st_level;
+    this.text = st_text;
+  }
+}
+
+let ar_output_stock = [];
+/**
+ * @param {String} st_level
+ * @param {String} st_text
+ */
+function outputPush(st_level, st_text){
+  if(outputSetting.output_level <= LevelList[st_level]){
+    ar_output_stock.push(new OutputText(st_level, st_text));
+  }
+}
+
+// ---------------
+// public
+// ---------------
+
+/**
+ * TODO setting format
+ * TODO show line no
+ */
+class Logger{
+
+  static get level(){
+    return LevelListAll;
+  }
+
+  static get setting(){
+    return outputSetting;
   }
 
   /**
-   * Declare the module in a loop
-   * @param {String} st_msg
-   * @param {Array<Object>} st_args
+   * @param {String}
+   * @param {Array<String>}
    */
-  for(var key in getLevelList()){
-    mod[key.toLowerCase() + 'Build'] = (function(key){
-      return function(st_msg, ar_args){
-        outputPush(key, utility.buildMsg(st_msg, ar_args));
-      };
-    })(key);
-  }
+  static trace(st_msg, ar_args=[]){outputPush('trace', Utility.buildMsg(st_msg, ar_args));}
+  static debug(st_msg, ar_args=[]){outputPush('debug', Utility.buildMsg(st_msg, ar_args));}
+  static info (st_msg, ar_args=[]){outputPush('info', Utility.buildMsg(st_msg, ar_args));}
+  static warn (st_msg, ar_args=[]){outputPush('warn', Utility.buildMsg(st_msg, ar_args));}
+  static error(st_msg, ar_args=[]){outputPush('error', Utility.buildMsg(st_msg, ar_args));}
+  static fatal(st_msg, ar_args=[]){outputPush('fatal', Utility.buildMsg(st_msg, ar_args));}
 
   /**
    * @param {void}
    */
-  mod.print = function(){
-    var st_output_string = '';
-    while(ar_output_stock.length !== 0){
-      var ob_output = ar_output_stock.shift();
-      st_output_string += ob_output_setting.header(ob_output.level) + ob_output.text + ob_output_setting.linefeed;
+  static print(){
+    let st_output_string = '';
+    for(let outputText of ar_output_stock){
+      st_output_string += outputSetting.header(outputText.level) + outputText.text + outputSetting.linefeed;
     }
 
     if(st_output_string !== ''){
-      ob_output_setting.output(st_output_string);
-    }
-  };
-
-  /**
-   * Object
-   */
-  mod.set = (function(setting){
-    var mods = {};
-
-    /**
-     * @param {Number} nu_level_value
-     */
-    mods.outputLevel = function(nu_level_value){
-      setting.output_level = nu_level_value;
-    }
-
-    /**
-     * @callback logger.set~fu_header
-     * @param {String} st_level
-     */
-    /**
-     * @param {logger.set~fu_header} fu_header
-     */
-    mods.header = function(fu_header){
-      setting.header = fu_header;
-    };
-
-    /**
-     *@param {String} st_linefeed
-     */
-    mods.linefeed = function(st_linefeed){
-      setting.linefeed = st_linefeed;
-    };
-
-    /**
-     * @callback logger.set~fu_output
-     * @param {String} st_msg
-     */
-    /**
-     * @param {logger.set~fu_output} fu_output
-     */
-    mods.output = function(fu_output){
-      setting.output = fu_output;
-    };
-
-    return mods;
-  })(ob_output_setting);
-
-  /**
-   * private
-   * @return {Object}
-   */
-  function getLevelList(){
-    return (function(){
-      var list = {};
-      list.TRACE = 1;
-      list.DEBUG = 2;
-      list.INFO = 3;
-      list.WARN = 4;
-      list.ERROR = 5;
-      list.FATAL = 6;
-      return list;
-    })();
-  }
-
-  /**
-   * private
-   * @param {String} st_level
-   * @param {String} st_text
-   */
-  function outputPush(st_level, st_text){
-    if(ob_output_setting.output_level <= getLevelList()[st_level]){
-      ar_output_stock.push({'level' : st_level, 'text' : st_text});
+      outputSetting.output(st_output_string);
     }
   }
+}
 
-  return mod;
-})();
-
+export {Logger};
