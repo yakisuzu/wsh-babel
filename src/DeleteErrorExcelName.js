@@ -4,18 +4,17 @@ import {Logger} from './modules/Logger.js';
 import {Args} from './modules/Args.js';
 import {ExcelAdapter} from './modules/ExcelAdapter.js';
 
-Args.logger = Logger;
-ExcelAdapter.logger = Logger;
+let args = new Args(Logger);
+let excel = new ExcelAdapter(Logger);
 
-let excel = new ExcelAdapter();
 excel.read_only = false;
 excel.save = true;
 
-Logger.setting.output_level = Logger.level.ALL;
+Logger.getConfig().output_level = Logger.getLevel().ALL;
 
 Utility.echo('Wait!');
 
-excel.executeExcel(Args.getArgs(), (ws_book)=>{
+excel.executeExcel(args.getArgs(), (ws_book)=>{
   excel.excelErrorNameDelete(ws_book);
 });
 

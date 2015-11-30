@@ -4,8 +4,6 @@ import {Utility} from './Utility.js';
 // private
 // ---------------
 
-let Logger;
-
 const msg = (()=>{
   let m  ={};
   m.no_support = 'Support xls or xlsx!';
@@ -47,23 +45,6 @@ function eachItem(ws, fu_execute){
   }
 }
 
-/**
- * @callback excelAdapter~fu_execute
- * @param {Worksheet} ws_sheet
- */
-/**
- * @param {Workbook} ws_book
- * @param {excelAdapter~fu_execute} fu_execute
- */
-function eachSheet(ws_book, fu_execute){
-  let ws_sheets = ws_book.Worksheets;
-  Logger.trace(msg.excel_sheet_count, [ws_sheets.Count]);
-  eachItem(ws_sheets, (ws_sheet)=>{
-    Logger.trace(msg.excel_sheet_name, [ws_sheet.Name]);
-    fu_execute(ws_sheet);
-  });
-}
-
 // ---------------
 // public
 // ---------------
@@ -73,19 +54,34 @@ function eachSheet(ws_book, fu_execute){
  */
 class ExcelAdapter{
 
-  static set Logger(l){
-    Logger = l;
-  }
-
   /**
    * @constructor
    */
-  constructor(){
+  constructor(logger){
+    this.Logger = logger;
+
     this.read_only = true;
     this.save = false;
     this.excel_use_ignore_reg = false;
     this.excel_ignore_reg = [];
     this.excel_error_reg = [/#N\/A/, /#REF!/, /[a-z,A-Z]:\\(.+\\)*.+\.xlsx?/, /\[.+\.xlsx?\]/];
+  }
+
+  /**
+   * @callback excelAdapter~fu_execute
+   * @param {Worksheet} ws_sheet
+   */
+  /**
+   * @param {Workbook} ws_book
+   * @param {excelAdapter~fu_execute} fu_execute
+   */
+  eachSheet(ws_book, fu_execute){
+    let ws_sheets = ws_book.Worksheets;
+    this.Logger.trace(msg.excel_sheet_count, [ws_sheets.Count]);
+    eachItem(ws_sheets, (ws_sheet)=>{
+      this.Logger.trace(msg.excel_sheet_name, [ws_sheet.Name]);
+      fu_execute(ws_sheet);
+    });
   }
 
   /**
@@ -117,11 +113,11 @@ class ExcelAdapter{
    */
   excelErrorNameDelete(ws_book){
     let ws_names = ws_book.Names;
-    Logger.trace(msg.excel_name_count, [ws_names.Count]);
+    this.Logger.trace(msg.excel_name_count, [ws_names.Count]);
 
     let ar_del_name = [];
     eachItem(ws_names, (ws_name)=>{
-      Logger.trace(msg.excel_name_value, [ws_name.Name, ws_name.Value]);
+      this.Logger.trace(msg.excel_name_value, [ws_name.Name, ws_name.Value]);
 
       ws_name.Visible = true;
 
@@ -132,9 +128,9 @@ class ExcelAdapter{
     });
 
     // execute error name delete
-    Logger.trace(msg.excel_name_hit_count, [ar_del_name.length]);
+    this.Logger.trace(msg.excel_name_hit_count, [ar_del_name.length]);
     for(let ws_del of ar_del_name){
-      Logger.trace(msg.excel_name_delete_value, [ws_del.Name, ws_del.Value]);
+      this.Logger.trace(msg.excel_name_delete_value, [ws_del.Name, ws_del.Value]);
 
       ws_del.Delete();
     }
@@ -144,14 +140,14 @@ class ExcelAdapter{
    * @param {Workbook} ws_book
    */
   excelErrorFormatDelete(ws_book){
-    eachSheet(ws_book, (ws_sheet)=>{
+    this.eachSheet(ws_book, (ws_sheet)=>{
       let ws_fcs = ws_sheet.Cells.FormatConditions;
-      Logger.trace(msg.excel_fc_count, [ws_fcs.Count]);
+      this.Logger.trace(msg.excel_fc_count, [ws_fcs.Count]);
 
       let ar_del_fc = [];
       eachItem(ws_fcs, function(ws_fc){
         let fc = getFc(ws_fc);
-        Logger.trace(msg.excel_fc_value, [fc.Formula1, fc.Formula2]);
+        this.Logger.trace(msg.excel_fc_value, [fc.Formula1, fc.Formula2]);
 
         // TODO check ws_fc.Formula2
         // add delete array
@@ -161,10 +157,10 @@ class ExcelAdapter{
       });
 
       // execute error name delete
-      Logger.trace(msg.excel_fc_hit_count, [ar_del_fc.length]);
+      this.Logger.trace(msg.excel_fc_hit_count, [ar_del_fc.length]);
       for(let ws_del of ar_del_fc){
         let fc = getFc(ws_del);
-        Logger.trace(msg.excel_fc_delete_value, [fc.Formula1, fc.Formula2]);
+        this.Logger.trace(msg.excel_fc_delete_value, [fc.Formula1, fc.Formula2]);
 
         ws_del.Delete();
       }
@@ -202,13 +198,13 @@ class ExcelAdapter{
     try{
       ws_excel = WScript.CreateObject('Excel.Application');
       ws_excel.Visible = false;
-      Logger.trace(msg.excel_start);
+      this.Logger.trace(msg.excel_start);
 
       // repeat arg file
       for(let st_arg of ar_files){
         // ignore extention at pattern
         if(st_arg.search(/^.+\.xlsx?$/) === -1){
-          Logger.warn(msg.no_support);
+          this.Logger.warn(msg.no_support);
           continue;
         }
 
@@ -224,7 +220,7 @@ class ExcelAdapter{
               /* WriteResPassword */ null,
               /* IgnoreReadOnlyRecommended */ true
               );
-          Logger.trace(msg.excel_book_open, [st_arg]);
+          this.Logger.trace(msg.excel_book_open, [st_arg]);
 
           fu_execute(ws_book);
 
@@ -232,9 +228,9 @@ class ExcelAdapter{
             ws_book.Save();
           }
           ws_book.Close(this.save);
-          Logger.trace(msg.excel_book_close, [st_arg]);
+          this.Logger.trace(msg.excel_book_close, [st_arg]);
         }catch(e){
-          Logger.error(msg.error, [st_arg]);
+          this.Logger.error(msg.error, [st_arg]);
           ws_book.Close(false);
           throw e;
         }
@@ -246,7 +242,7 @@ class ExcelAdapter{
         if(ws_excel !== undefined){
           ws_excel.Quit();
         }
-        Logger.trace(msg.excel_end);
+        this.Logger.trace(msg.excel_end);
       }catch(e){
         Utility.dump(e);
       }

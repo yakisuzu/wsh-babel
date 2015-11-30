@@ -25,7 +25,7 @@ const LevelListAll = (()=>{
   return level;
 })();
 
-let outputSetting = new (class{
+let config = new (class{
   constructor(){
     this.output_level = LevelList.INFO;
     this.header = (st_level)=>{return '[' + st_level + ']';};
@@ -50,7 +50,7 @@ let ar_output_stock = [];
  * @param {String} st_text
  */
 function outputPush(st_level, st_text){
-  if(outputSetting.output_level <= LevelList[st_level]){
+  if(config.output_level <= LevelList[st_level]){
     ar_output_stock.push(new OutputText(st_level, st_text));
   }
 }
@@ -65,12 +65,12 @@ function outputPush(st_level, st_text){
  */
 class Logger{
 
-  static get level(){
+  static getLevel(){
     return LevelListAll;
   }
 
-  static get setting(){
-    return outputSetting;
+  static getConfig(){
+    return config;
   }
 
   /**
@@ -90,11 +90,11 @@ class Logger{
   static print(){
     let st_output_string = '';
     for(let outputText of ar_output_stock){
-      st_output_string += outputSetting.header(outputText.level) + outputText.text + outputSetting.linefeed;
+      st_output_string += config.header(outputText.level) + outputText.text + config.linefeed;
     }
 
     if(st_output_string !== ''){
-      outputSetting.output(st_output_string);
+      config.output(st_output_string);
     }
   }
 }

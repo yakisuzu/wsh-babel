@@ -2,8 +2,6 @@
 // private
 // ---------------
 
-let Logger;
-
 /**
  * @return {Object}
  */
@@ -22,25 +20,25 @@ const msg = (()=>{
  */
 class Args{
 
-  static set Logger(l){
-    Logger = l;
+  constructor(logger){
+    this.Logger = logger
   }
 
   /**
    * @return {Array<String>}
    */
-  static getArgs(){
+  getArgs(){
     let ws_args = WScript.Arguments;
     if(ws_args.Length === 0){
-      Logger.info(msg.no_args);
-      Logger.print();
+      this.Logger.info(msg.no_args);
+      this.Logger.print();
       WScript.Quit();
     }
 
     let ar_args = [];
     for(let nu_arg = 0; nu_arg < ws_args.Length; nu_arg++){
       let st_arg = ws_args.Item(nu_arg);
-      Logger.trace(st_arg);
+      this.Logger.trace(st_arg);
       ar_args.push(st_arg);
     }
     return ar_args;
