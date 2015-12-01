@@ -1,3 +1,5 @@
+import {Utility} from './Utility.js';
+
 // ---------------
 // private
 // ---------------
@@ -20,25 +22,20 @@ const msg = (()=>{
  */
 class Args{
 
-  constructor(logger){
-    this.Logger = logger
-  }
-
   /**
+   * @param {void}
    * @return {Array<String>}
    */
-  getArgs(){
+  static getArgs(){
     let ws_args = WScript.Arguments;
     if(ws_args.Length === 0){
-      this.Logger.info(msg.no_args);
-      this.Logger.print();
+      Utility.echo(msg.no_args);
       WScript.Quit();
     }
 
     let ar_args = [];
     for(let nu_arg = 0; nu_arg < ws_args.Length; nu_arg++){
       let st_arg = ws_args.Item(nu_arg);
-      this.Logger.trace(st_arg);
       ar_args.push(st_arg);
     }
     return ar_args;

@@ -1,8 +1,8 @@
 module.exports = {
   entry: {
-    index: "./src/index.js",
-    DeleteErrorExcelName: "./src/DeleteErrorExcelName.js",
-    DeleteErrorExcelFormat: "./src/DeleteErrorExcelFormat.js"
+    index: "./src/index.js"
+      ,DeleteErrorExcelName: "./src/DeleteErrorExcelName.js"
+      ,DeleteErrorExcelFormat: "./src/DeleteErrorExcelFormat.js"
   },
   output: {
     path: "./dest/",

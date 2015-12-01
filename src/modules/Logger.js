@@ -15,25 +15,6 @@ const LevelList = (()=>{
   return level;
 })();
 
-const LevelListAll = (()=>{
-  let level = {};
-  level.ALL = 0;
-  for(let key in LevelList){
-    level[key] = LevelList[key];
-  }
-  level.OFF = 9;
-  return level;
-})();
-
-let config = new (class{
-  constructor(){
-    this.output_level = LevelList.INFO;
-    this.header = (st_level)=>{return '[' + st_level + ']';};
-    this.linefeed = '\n';
-    this.output = (st_msg)=>{Utility.echo(st_msg);};
-  }
-})();
-
 /**
  *
  */
@@ -45,6 +26,7 @@ class OutputText{
 }
 
 let ar_output_stock = [];
+
 /**
  * @param {String} st_level
  * @param {String} st_text
@@ -58,6 +40,29 @@ function outputPush(st_level, st_text){
 // ---------------
 // public
 // ---------------
+
+const LevelListAll = (()=>{
+  let level = {};
+  level.ALL = 0;
+  for(let key in LevelList){
+    level[key] = LevelList[key];
+  }
+  level.OFF = 9;
+  return level;
+})();
+
+/**
+ *
+ */
+class Config{
+  constructor(){
+    this.output_level = LevelList.INFO;
+    this.header = (st_level)=>{return '[' + st_level + ']';};
+    this.linefeed = '\n';
+    this.output = (st_msg)=>{Utility.echo(st_msg);};
+  }
+}
+let config = new Config();
 
 /**
  * TODO setting format
@@ -77,12 +82,12 @@ class Logger{
    * @param {String}
    * @param {Array<String>}
    */
-  static trace(st_msg, ar_args=[]){outputPush('trace', Utility.buildMsg(st_msg, ar_args));}
-  static debug(st_msg, ar_args=[]){outputPush('debug', Utility.buildMsg(st_msg, ar_args));}
-  static info (st_msg, ar_args=[]){outputPush('info', Utility.buildMsg(st_msg, ar_args));}
-  static warn (st_msg, ar_args=[]){outputPush('warn', Utility.buildMsg(st_msg, ar_args));}
-  static error(st_msg, ar_args=[]){outputPush('error', Utility.buildMsg(st_msg, ar_args));}
-  static fatal(st_msg, ar_args=[]){outputPush('fatal', Utility.buildMsg(st_msg, ar_args));}
+  static trace(st_msg, ar_args=[]){outputPush('TRACE', Utility.buildMsg(st_msg, ar_args));}
+  static debug(st_msg, ar_args=[]){outputPush('DEBUG', Utility.buildMsg(st_msg, ar_args));}
+  static info (st_msg, ar_args=[]){outputPush('INFO', Utility.buildMsg(st_msg, ar_args));}
+  static warn (st_msg, ar_args=[]){outputPush('WARN', Utility.buildMsg(st_msg, ar_args));}
+  static error(st_msg, ar_args=[]){outputPush('ERROR', Utility.buildMsg(st_msg, ar_args));}
+  static fatal(st_msg, ar_args=[]){outputPush('FATAL', Utility.buildMsg(st_msg, ar_args));}
 
   /**
    * @param {void}

@@ -20,12 +20,12 @@ const msg = (()=>{
 
   m.excel_name_count = 'Name {Count : {0}}';
   m.excel_name_value = 'Name {Name : {0}, Value : {1}}';
-  m.excel_name_hit_count = 'Name hit count = {0}';
+  m.excel_name_delete_count = 'Delete! Name count = {0}';
   m.excel_name_delete_value = 'Delete! ' + m.excel_name_value;
 
   m.excel_fc_count = 'Fc {Count : {0}}';
   m.excel_fc_value = 'Fc {Formula1 : {0}, Formula2 : {1}}';
-  m.excel_fc_hit_count = 'Fc hit count = {0}';
+  m.excel_fc_delete_count = 'Delete! Fc count = {0}';
   m.excel_fc_delete_value = 'Delete! ' + m.excel_fc_value;
 
   return m;
@@ -52,6 +52,19 @@ function eachItem(ws, fu_execute){
 /**
  *
  */
+class Config{
+  constructor(){
+    this.read_only = true;
+    this.save = false;
+    this.excel_use_ignore_reg = false;
+    this.excel_ignore_reg = [];
+    this.excel_error_reg = [/#N\/A/, /#REF!/, /[a-z,A-Z]:\\(.+\\)*.+\.xlsx?/, /\[.+\.xlsx?\]/];
+  }
+}
+
+/**
+ *
+ */
 class ExcelAdapter{
 
   /**
@@ -60,11 +73,7 @@ class ExcelAdapter{
   constructor(logger){
     this.Logger = logger;
 
-    this.read_only = true;
-    this.save = false;
-    this.excel_use_ignore_reg = false;
-    this.excel_ignore_reg = [];
-    this.excel_error_reg = [/#N\/A/, /#REF!/, /[a-z,A-Z]:\\(.+\\)*.+\.xlsx?/, /\[.+\.xlsx?\]/];
+    this.config = new Config();
   }
 
   /**
@@ -89,8 +98,8 @@ class ExcelAdapter{
    * @return {Boolean}
    */
   isErrorValue(st_value){
-    if(this.excel_use_ignore_reg){
-      for(let st_ignore of this.excel_ignore_reg){
+    if(this.config.excel_use_ignore_reg){
+      for(let st_ignore of this.config.excel_ignore_reg){
         // when not found regex, value is error
         if(st_value.search(st_ignore) === -1){
           return true;
@@ -98,7 +107,7 @@ class ExcelAdapter{
       }
 
     }else{
-      for(let st_err of this.excel_error_reg){
+      for(let st_err of this.config.excel_error_reg){
         // when contains error, value is error
         if(st_value.search(st_err) !== -1){
           return true;
@@ -128,12 +137,12 @@ class ExcelAdapter{
     });
 
     // execute error name delete
-    this.Logger.trace(msg.excel_name_hit_count, [ar_del_name.length]);
     for(let ws_del of ar_del_name){
       this.Logger.trace(msg.excel_name_delete_value, [ws_del.Name, ws_del.Value]);
 
       ws_del.Delete();
     }
+    this.Logger.trace(msg.excel_name_delete_count, [ar_del_name.length]);
   }
 
   /**
@@ -157,13 +166,13 @@ class ExcelAdapter{
       });
 
       // execute error name delete
-      this.Logger.trace(msg.excel_fc_hit_count, [ar_del_fc.length]);
       for(let ws_del of ar_del_fc){
         let fc = getFc(ws_del);
         this.Logger.trace(msg.excel_fc_delete_value, [fc.Formula1, fc.Formula2]);
 
         ws_del.Delete();
       }
+      this.Logger.trace(msg.excel_fc_delete_count, [ar_del_fc.length]);
     });
 
     function getFc(ws_fc){
@@ -211,23 +220,23 @@ class ExcelAdapter{
         // execute execl function
         let ws_book;
         try{
+          this.Logger.trace(msg.excel_book_open, [st_arg]);
           ws_book = ws_excel.Workbooks.Open(
               /* FileName */ st_arg,
               /* UpdateLinks */ 0,
-              /* ReadOnly */ this.read_only,
+              /* ReadOnly */ this.config.read_only,
               /* Format */ null,
               /* Password */ null,
               /* WriteResPassword */ null,
               /* IgnoreReadOnlyRecommended */ true
               );
-          this.Logger.trace(msg.excel_book_open, [st_arg]);
 
           fu_execute(ws_book);
 
-          if(this.save){
+          if(this.config.save){
             ws_book.Save();
           }
-          ws_book.Close(this.save);
+          ws_book.Close(this.config.save);
           this.Logger.trace(msg.excel_book_close, [st_arg]);
         }catch(e){
           this.Logger.error(msg.error, [st_arg]);
