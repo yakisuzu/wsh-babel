@@ -6,7 +6,7 @@ import {Utility} from './Utility.js';
 
 const msg = (()=>{
   let m  ={};
-  m.no_support = 'Support xls or xlsx!';
+  m.no_support = 'Support xls, xlsx, xlsm!';
   m.error = 'Error! {0}';
 
   m.excel_start = 'Excel Start!';
@@ -212,7 +212,7 @@ class ExcelAdapter{
       // repeat arg file
       for(let st_arg of ar_files){
         // ignore extention at pattern
-        if(st_arg.search(/^.+\.xlsx?$/) === -1){
+        if(st_arg.search(/^.+\.xls(x|m)?$/) === -1){
           this.Logger.warn(msg.no_support);
           continue;
         }
