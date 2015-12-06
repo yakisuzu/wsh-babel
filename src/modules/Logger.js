@@ -5,7 +5,7 @@ import {Utility} from './Utility.js';
 // ---------------
 
 const LevelList = (()=>{
-  let level = {};
+  const level = {};
   level.TRACE = 1;
   level.DEBUG = 2;
   level.INFO = 3;
@@ -31,8 +31,8 @@ let ar_output_stock = [];
  * @param {String} st_level
  * @param {String} st_text
  */
-function outputPush(st_level, st_text){
-  if(config.output_level <= LevelList[st_level]){
+const outputPush = (st_level, st_text)=>{
+  if(LoggerStaticConfig.output_level <= LevelList[st_level]){
     ar_output_stock.push(new OutputText(st_level, st_text));
   }
 }
@@ -42,7 +42,7 @@ function outputPush(st_level, st_text){
 // ---------------
 
 const LevelListAll = (()=>{
-  let level = {};
+  const level = {};
   level.ALL = 0;
   for(let key in LevelList){
     level[key] = LevelList[key];
@@ -51,32 +51,20 @@ const LevelListAll = (()=>{
   return level;
 })();
 
-/**
- *
- */
-class Config{
-  constructor(){
-    this.output_level = LevelList.INFO;
-    this.header = (st_level)=>{return '[' + st_level + ']';};
-    this.linefeed = '\n';
-    this.output = (st_msg)=>{Utility.echo(st_msg);};
-  }
-}
-let config = new Config();
+const LoggerStaticConfig = (()=>{
+  const c = {};
+  c.output_level = LevelListAll.INFO;
+  c.header = (st_level)=>{return '[' + st_level + ']';};
+  c.linefeed = '\n';
+  c.output = (st_msg)=>{Utility.echo(st_msg);};
+  return c;
+})();
 
 /**
  * TODO setting format
  * TODO show line no
  */
 class Logger{
-
-  static getLevel(){
-    return LevelListAll;
-  }
-
-  static getConfig(){
-    return config;
-  }
 
   /**
    * @param {String}
@@ -90,18 +78,16 @@ class Logger{
   static fatal(st_msg, ar_args=[]){outputPush('FATAL', Utility.buildMsg(st_msg, ar_args));}
 
   /**
-   * @param {void}
+   *
    */
   static print(){
-    let st_output_string = '';
-    for(let outputText of ar_output_stock){
-      st_output_string += config.header(outputText.level) + outputText.text + config.linefeed;
-    }
-
-    if(st_output_string !== ''){
-      config.output(st_output_string);
-    }
+    LoggerStaticConfig.output(
+      ar_output_stock.map((outputText)=>{
+        return LoggerStaticConfig.header(outputText.level) + outputText.text
+      }).join(LoggerStaticConfig.linefeed)
+    );
+    ar_output_stock = [];
   }
 }
 
-export {Logger};
+export {Logger, LoggerStaticConfig, LevelListAll};

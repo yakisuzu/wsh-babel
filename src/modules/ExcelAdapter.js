@@ -5,7 +5,7 @@ import {Utility} from './Utility.js';
 // ---------------
 
 const msg = (()=>{
-  let m  ={};
+  const m = {};
   m.no_support = 'Support xls, xlsx, xlsm!';
   m.error = 'Error! {0}';
 
@@ -39,7 +39,7 @@ const msg = (()=>{
  * @param {Object<Excel>} ws
  * @param {excelAdapter~fu_execute} fu_execute
  */
-function eachItem(ws, fu_execute){
+const eachItem = (ws, fu_execute)=>{
   for(let nu_ws = 1; nu_ws <= ws.Count; nu_ws++){
     fu_execute(ws.Item(nu_ws));
   }
@@ -85,7 +85,7 @@ class ExcelAdapter{
    * @param {excelAdapter~fu_execute} fu_execute
    */
   eachSheet(ws_book, fu_execute){
-    let ws_sheets = ws_book.Worksheets;
+    const ws_sheets = ws_book.Worksheets;
     this.Logger.trace(msg.excel_sheet_count, [ws_sheets.Count]);
     eachItem(ws_sheets, (ws_sheet)=>{
       this.Logger.trace(msg.excel_sheet_name, [ws_sheet.Name]);
@@ -121,10 +121,10 @@ class ExcelAdapter{
    * @param {Workbook} ws_book
    */
   excelErrorNameDelete(ws_book){
-    let ws_names = ws_book.Names;
+    const ws_names = ws_book.Names;
     this.Logger.trace(msg.excel_name_count, [ws_names.Count]);
 
-    let ar_del_name = [];
+    const ar_del_name = [];
     eachItem(ws_names, (ws_name)=>{
       this.Logger.trace(msg.excel_name_value, [ws_name.Name, ws_name.Value]);
 
@@ -149,33 +149,7 @@ class ExcelAdapter{
    * @param {Workbook} ws_book
    */
   excelErrorFormatDelete(ws_book){
-    this.eachSheet(ws_book, (ws_sheet)=>{
-      let ws_fcs = ws_sheet.Cells.FormatConditions;
-      this.Logger.trace(msg.excel_fc_count, [ws_fcs.Count]);
-
-      let ar_del_fc = [];
-      eachItem(ws_fcs, function(ws_fc){
-        let fc = getFc(ws_fc);
-        this.Logger.trace(msg.excel_fc_value, [fc.Formula1, fc.Formula2]);
-
-        // TODO check ws_fc.Formula2
-        // add delete array
-        if(this.isErrorValue(fc.Formula1)){
-          ar_del_fc.push(ws_fc);
-        }
-      });
-
-      // execute error name delete
-      for(let ws_del of ar_del_fc){
-        let fc = getFc(ws_del);
-        this.Logger.trace(msg.excel_fc_delete_value, [fc.Formula1, fc.Formula2]);
-
-        ws_del.Delete();
-      }
-      this.Logger.trace(msg.excel_fc_delete_count, [ar_del_fc.length]);
-    });
-
-    function getFc(ws_fc){
+    const getFc = (ws_fc)=>{
       let f1 = '';
       let f2 = '';
       try{
@@ -192,6 +166,32 @@ class ExcelAdapter{
         }
       })();
     }
+
+    this.eachSheet(ws_book, (ws_sheet)=>{
+      const ws_fcs = ws_sheet.Cells.FormatConditions;
+      this.Logger.trace(msg.excel_fc_count, [ws_fcs.Count]);
+
+      const ar_del_fc = [];
+      eachItem(ws_fcs, (ws_fc)=>{
+        const fc = getFc(ws_fc);
+        this.Logger.trace(msg.excel_fc_value, [fc.Formula1, fc.Formula2]);
+
+        // TODO check ws_fc.Formula2
+        // add delete array
+        if(this.isErrorValue(fc.Formula1)){
+          ar_del_fc.push(ws_fc);
+        }
+      });
+
+      // execute error name delete
+      for(let ws_del of ar_del_fc){
+        const fc = getFc(ws_del);
+        this.Logger.trace(msg.excel_fc_delete_value, [fc.Formula1, fc.Formula2]);
+
+        ws_del.Delete();
+      }
+      this.Logger.trace(msg.excel_fc_delete_count, [ar_del_fc.length]);
+    });
   }
 
   /**

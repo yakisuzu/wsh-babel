@@ -1,15 +1,15 @@
 import 'babel-polyfill';
 import {Utility} from './modules/Utility.js';
-import {Logger} from './modules/Logger.js';
+import {Logger, LoggerStaticConfig, LevelListAll} from './modules/Logger.js';
 import {Args} from './modules/Args.js';
 import {ExcelAdapter} from './modules/ExcelAdapter.js';
 
-let excel = new ExcelAdapter(Logger);
+const excel = new ExcelAdapter(Logger);
 
 excel.config.read_only = false;
 excel.config.save = true;
 
-Logger.getConfig().output_level = Logger.getLevel().ALL;
+LoggerStaticConfig.output_level = LevelListAll.ALL;
 
 Utility.echo('Wait!');
 

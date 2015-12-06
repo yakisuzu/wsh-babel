@@ -3,7 +3,7 @@
 // ---------------
 
 const msg = (()=>{
-  let m = {};
+  const m = {};
   m.not_import = '{0} has not been imported into the {1} module';
   m.not_support = '{0} class not support';
   m.dump_object = 'key : {0}, class : {1}';
@@ -46,7 +46,7 @@ class Utility{
    * @return {String}
    */
   static getClass(o){
-    let st_class =  Object.prototype.toString.apply(o);
+    const st_class =  Object.prototype.toString.apply(o);
     return st_class.replace(/\[object /, '').replace(/\]/, '');
   }
 
@@ -55,8 +55,8 @@ class Utility{
    */
   static dump(object){
     (function dumpR(object, st_pac_base){
-      let st_class = getClass(object);
-      let st_pac = (st_pac_base ? st_pac_base + '.' : '');
+      const st_class = getClass(object);
+      const st_pac = (st_pac_base ? st_pac_base + '.' : '');
 
       switch(st_class){
         case 'Object':

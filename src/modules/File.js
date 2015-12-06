@@ -2,13 +2,10 @@
 // private
 // ---------------
 
-let ws_fso = WScript.CreateObject('Scripting.FileSystemObject');
+const ws_fso = WScript.CreateObject('Scripting.FileSystemObject');
 
-/**
- * @return {Object}
- */
 const msg = (()=>{
-  let m  ={};
+  const m = {};
   return m;
 })();
 
@@ -22,7 +19,7 @@ const msg = (()=>{
 class File{
 
   /**
-   * @param {String}
+   * @param {String} st_path
    * @return {boolean}
    */
   static exists(st_path){
@@ -30,10 +27,11 @@ class File{
   }
 
   /**
-   * @return {void}
+   * @param {String} st_file
+   * @param {Array<String>} ar_text
    */
   static createTextFile(st_file, ar_text){
-    let ws_file = ws_fso.CreateTextFile(st_file, true);
+    const ws_file = ws_fso.CreateTextFile(st_file, true);
     for(let st_text of ar_text){
       ws_file.WriteLine(st_text);
     }
