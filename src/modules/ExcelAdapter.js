@@ -32,18 +32,27 @@ const msg = (()=>{
 })();
 
 /**
- * @callback excelAdapter~fu_execute
- * @param {Object<Excel>} ws_item
- */
-/**
  * @param {Object<Excel>} ws
- * @param {excelAdapter~fu_execute} fu_execute
  */
-const eachItem = (ws, fu_execute)=>{
+function* eachItem(ws){
   for(let nu_ws = 1; nu_ws <= ws.Count; nu_ws++){
-    fu_execute(ws.Item(nu_ws));
+    yield ws.Item(nu_ws);
   }
 }
+
+/**
+ * @param {ExcelAdapter} self
+ * @param {Object<Workbook>} ws_book
+ */
+function* eachSheet(self, ws_book){
+  const ws_sheets = ws_book.Worksheets;
+  self.logger.trace(msg.excel_sheet_count, [ws_sheets.Count]);
+  for(let ws_sheet of eachItem(ws_sheets)){
+    self.logger.trace(msg.excel_sheet_name, [ws_sheet.Name]);
+    yield ws_sheet;
+  }
+}
+
 
 // ---------------
 // public
@@ -77,55 +86,38 @@ class ExcelAdapter{
   }
 
   /**
-   * @callback excelAdapter~fu_execute
-   * @param {Worksheet} ws_sheet
-   */
-  /**
-   * @param {Workbook} ws_book
-   * @param {excelAdapter~fu_execute} fu_execute
-   */
-  eachSheet(ws_book, fu_execute){
-    const ws_sheets = ws_book.Worksheets;
-    this.logger.trace(msg.excel_sheet_count, [ws_sheets.Count]);
-    eachItem(ws_sheets, (ws_sheet)=>{
-      this.logger.trace(msg.excel_sheet_name, [ws_sheet.Name]);
-      fu_execute(ws_sheet);
-    });
-  }
-
-  /**
    * @param {String} st_value
    * @return {Boolean}
    */
   isErrorValue(st_value){
     if(this.config.excel_use_ignore_reg){
-      for(let st_ignore of this.config.excel_ignore_reg){
-        // when not found regex, value is error
-        if(st_value.search(st_ignore) === -1){
-          return true;
-        }
+      // when not found regex, value is error
+      if(this.config.excel_ignore_reg.some((reg)=>{
+        return st_value.search(reg) === -1;
+      })){
+        return true;
       }
 
     }else{
-      for(let st_err of this.config.excel_error_reg){
-        // when contains error, value is error
-        if(st_value.search(st_err) !== -1){
-          return true;
-        }
+      // when contains error, value is error
+      if(this.config.excel_error_reg.some((reg)=>{
+        return st_value.search(reg) !== -1;
+      })){
+        return true;
       }
     }
     return false;
   }
 
   /**
-   * @param {Workbook} ws_book
+   * @param {Object<Workbook>} ws_book
    */
   excelErrorNameDelete(ws_book){
     const ws_names = ws_book.Names;
     this.logger.trace(msg.excel_name_count, [ws_names.Count]);
 
     const ar_del_name = [];
-    eachItem(ws_names, (ws_name)=>{
+    for(let ws_name of eachItem(ws_names)){
       this.logger.trace(msg.excel_name_value, [ws_name.Name, ws_name.Value]);
 
       ws_name.Visible = true;
@@ -134,7 +126,7 @@ class ExcelAdapter{
       if(this.isErrorValue(ws_name.Value)){
         ar_del_name.push(ws_name);
       }
-    });
+    }
 
     // execute error name delete
     for(let ws_del of ar_del_name){
@@ -146,7 +138,7 @@ class ExcelAdapter{
   }
 
   /**
-   * @param {Workbook} ws_book
+   * @param {Object<Workbook>} ws_book
    */
   excelErrorFormatDelete(ws_book){
     const getFc = (ws_fc)=>{
@@ -167,12 +159,12 @@ class ExcelAdapter{
       })();
     }
 
-    this.eachSheet(ws_book, (ws_sheet)=>{
+    for(let ws_sheet of eachSheet(this, ws_book)){
       const ws_fcs = ws_sheet.Cells.FormatConditions;
       this.logger.trace(msg.excel_fc_count, [ws_fcs.Count]);
 
       const ar_del_fc = [];
-      eachItem(ws_fcs, (ws_fc)=>{
+      for(let ws_fc of eachItem(ws_fcs)){
         const fc = getFc(ws_fc);
         this.logger.trace(msg.excel_fc_value, [fc.Formula1, fc.Formula2]);
 
@@ -181,7 +173,7 @@ class ExcelAdapter{
         if(this.isErrorValue(fc.Formula1)){
           ar_del_fc.push(ws_fc);
         }
-      });
+      }
 
       // execute error name delete
       for(let ws_del of ar_del_fc){
@@ -191,12 +183,12 @@ class ExcelAdapter{
         ws_del.Delete();
       }
       this.logger.trace(msg.excel_fc_delete_count, [ar_del_fc.length]);
-    });
+    }
   }
 
   /**
    * @callback excelAdapter~fu_execute
-   * @param {Workbook} ws_book
+   * @param {Object<Workbook>} ws_book
    */
   /**
    * @param {Array<String>} ar_files
