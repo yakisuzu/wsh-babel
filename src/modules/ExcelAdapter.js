@@ -70,8 +70,8 @@ class ExcelAdapter{
   /**
    * @constructor
    */
-  constructor(logger){
-    this.Logger = logger;
+  constructor(log){
+    this.logger = log;
 
     this.config = new Config();
   }
@@ -86,9 +86,9 @@ class ExcelAdapter{
    */
   eachSheet(ws_book, fu_execute){
     const ws_sheets = ws_book.Worksheets;
-    this.Logger.trace(msg.excel_sheet_count, [ws_sheets.Count]);
+    this.logger.trace(msg.excel_sheet_count, [ws_sheets.Count]);
     eachItem(ws_sheets, (ws_sheet)=>{
-      this.Logger.trace(msg.excel_sheet_name, [ws_sheet.Name]);
+      this.logger.trace(msg.excel_sheet_name, [ws_sheet.Name]);
       fu_execute(ws_sheet);
     });
   }
@@ -122,11 +122,11 @@ class ExcelAdapter{
    */
   excelErrorNameDelete(ws_book){
     const ws_names = ws_book.Names;
-    this.Logger.trace(msg.excel_name_count, [ws_names.Count]);
+    this.logger.trace(msg.excel_name_count, [ws_names.Count]);
 
     const ar_del_name = [];
     eachItem(ws_names, (ws_name)=>{
-      this.Logger.trace(msg.excel_name_value, [ws_name.Name, ws_name.Value]);
+      this.logger.trace(msg.excel_name_value, [ws_name.Name, ws_name.Value]);
 
       ws_name.Visible = true;
 
@@ -138,11 +138,11 @@ class ExcelAdapter{
 
     // execute error name delete
     for(let ws_del of ar_del_name){
-      this.Logger.trace(msg.excel_name_delete_value, [ws_del.Name, ws_del.Value]);
+      this.logger.trace(msg.excel_name_delete_value, [ws_del.Name, ws_del.Value]);
 
       ws_del.Delete();
     }
-    this.Logger.trace(msg.excel_name_delete_count, [ar_del_name.length]);
+    this.logger.trace(msg.excel_name_delete_count, [ar_del_name.length]);
   }
 
   /**
@@ -169,12 +169,12 @@ class ExcelAdapter{
 
     this.eachSheet(ws_book, (ws_sheet)=>{
       const ws_fcs = ws_sheet.Cells.FormatConditions;
-      this.Logger.trace(msg.excel_fc_count, [ws_fcs.Count]);
+      this.logger.trace(msg.excel_fc_count, [ws_fcs.Count]);
 
       const ar_del_fc = [];
       eachItem(ws_fcs, (ws_fc)=>{
         const fc = getFc(ws_fc);
-        this.Logger.trace(msg.excel_fc_value, [fc.Formula1, fc.Formula2]);
+        this.logger.trace(msg.excel_fc_value, [fc.Formula1, fc.Formula2]);
 
         // TODO check ws_fc.Formula2
         // add delete array
@@ -186,11 +186,11 @@ class ExcelAdapter{
       // execute error name delete
       for(let ws_del of ar_del_fc){
         const fc = getFc(ws_del);
-        this.Logger.trace(msg.excel_fc_delete_value, [fc.Formula1, fc.Formula2]);
+        this.logger.trace(msg.excel_fc_delete_value, [fc.Formula1, fc.Formula2]);
 
         ws_del.Delete();
       }
-      this.Logger.trace(msg.excel_fc_delete_count, [ar_del_fc.length]);
+      this.logger.trace(msg.excel_fc_delete_count, [ar_del_fc.length]);
     });
   }
 
@@ -207,20 +207,20 @@ class ExcelAdapter{
     try{
       ws_excel = WScript.CreateObject('Excel.Application');
       ws_excel.Visible = false;
-      this.Logger.trace(msg.excel_start);
+      this.logger.trace(msg.excel_start);
 
       // repeat arg file
       for(let st_arg of ar_files){
         // ignore extention at pattern
         if(st_arg.search(/^.+\.xls(x|m)?$/) === -1){
-          this.Logger.warn(msg.no_support);
+          this.logger.warn(msg.no_support);
           continue;
         }
 
         // execute execl function
         let ws_book;
         try{
-          this.Logger.trace(msg.excel_book_open, [st_arg]);
+          this.logger.trace(msg.excel_book_open, [st_arg]);
           ws_book = ws_excel.Workbooks.Open(
               /* FileName */ st_arg,
               /* UpdateLinks */ 0,
@@ -237,9 +237,9 @@ class ExcelAdapter{
             ws_book.Save();
           }
           ws_book.Close(this.config.save);
-          this.Logger.trace(msg.excel_book_close, [st_arg]);
+          this.logger.trace(msg.excel_book_close, [st_arg]);
         }catch(e){
-          this.Logger.error(msg.error, [st_arg]);
+          this.logger.error(msg.error, [st_arg]);
           ws_book.Close(false);
           throw e;
         }
@@ -251,7 +251,7 @@ class ExcelAdapter{
         if(ws_excel !== undefined){
           ws_excel.Quit();
         }
-        this.Logger.trace(msg.excel_end);
+        this.logger.trace(msg.excel_end);
       }catch(e){
         Utility.dump(e);
       }

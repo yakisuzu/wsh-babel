@@ -25,18 +25,6 @@ class OutputText{
   }
 }
 
-let ar_output_stock = [];
-
-/**
- * @param {String} st_level
- * @param {String} st_text
- */
-const outputPush = (st_level, st_text)=>{
-  if(LoggerStaticConfig.output_level <= LevelList[st_level]){
-    ar_output_stock.push(new OutputText(st_level, st_text));
-  }
-}
-
 // ---------------
 // public
 // ---------------
@@ -51,14 +39,17 @@ const LevelListAll = (()=>{
   return level;
 })();
 
-const LoggerStaticConfig = (()=>{
-  const c = {};
-  c.output_level = LevelListAll.INFO;
-  c.header = (st_level)=>{return '[' + st_level + ']';};
-  c.linefeed = '\n';
-  c.output = (st_msg)=>{Utility.echo(st_msg);};
-  return c;
-})();
+/**
+ *
+ */
+class Config{
+  constructor(){
+    this.output_level = LevelListAll.INFO;
+    this.header = (st_level)=>{return '[' + st_level + ']';};
+    this.linefeed = '\n';
+    this.output = (st_msg)=>{Utility.echo(st_msg);};
+  }
+}
 
 /**
  * TODO setting format
@@ -67,27 +58,45 @@ const LoggerStaticConfig = (()=>{
 class Logger{
 
   /**
+   * @constructor
+   */
+  constructor(){
+    this.config = new Config();
+    this.output_stock = [];
+  }
+
+  /**
    * @param {String}
    * @param {Array<String>}
    */
-  static trace(st_msg, ar_args=[]){outputPush('TRACE', Utility.buildMsg(st_msg, ar_args));}
-  static debug(st_msg, ar_args=[]){outputPush('DEBUG', Utility.buildMsg(st_msg, ar_args));}
-  static info (st_msg, ar_args=[]){outputPush('INFO', Utility.buildMsg(st_msg, ar_args));}
-  static warn (st_msg, ar_args=[]){outputPush('WARN', Utility.buildMsg(st_msg, ar_args));}
-  static error(st_msg, ar_args=[]){outputPush('ERROR', Utility.buildMsg(st_msg, ar_args));}
-  static fatal(st_msg, ar_args=[]){outputPush('FATAL', Utility.buildMsg(st_msg, ar_args));}
+  trace(st_msg, ar_args=[]){outputPush('TRACE', Utility.buildMsg(st_msg, ar_args));}
+  debug(st_msg, ar_args=[]){outputPush('DEBUG', Utility.buildMsg(st_msg, ar_args));}
+  info (st_msg, ar_args=[]){outputPush('INFO',  Utility.buildMsg(st_msg, ar_args));}
+  warn (st_msg, ar_args=[]){outputPush('WARN',  Utility.buildMsg(st_msg, ar_args));}
+  error(st_msg, ar_args=[]){outputPush('ERROR', Utility.buildMsg(st_msg, ar_args));}
+  fatal(st_msg, ar_args=[]){outputPush('FATAL', Utility.buildMsg(st_msg, ar_args));}
+
+  /**
+   * @param {String} st_level
+   * @param {String} st_text
+   */
+  outputPush(st_level, st_text){
+    if(this.config.output_level <= LevelList[st_level]){
+      this.output_stock.push(new OutputText(st_level, st_text));
+    }
+  }
 
   /**
    *
    */
-  static print(){
-    LoggerStaticConfig.output(
-      ar_output_stock.map((outputText)=>{
-        return LoggerStaticConfig.header(outputText.level) + outputText.text
-      }).join(LoggerStaticConfig.linefeed)
+  print(){
+    this.config.output(
+      this.output_stock.map((outputText)=>{
+        return this.config.header(outputText.level) + outputText.text
+      }).join(this.config.linefeed)
     );
-    ar_output_stock = [];
+    this.output_stock = [];
   }
 }
 
-export {Logger, LoggerStaticConfig, LevelListAll};
+export {Logger, LevelListAll};
