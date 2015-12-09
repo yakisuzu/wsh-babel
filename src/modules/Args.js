@@ -14,13 +14,6 @@ const msg = (()=>{
 // public
 // ---------------
 
-const ArgsStaticConfig = (()=>{
-  const c = {};
-  c.no_args_error = true;
-  c.no_args_msg = msg.no_args;
-  return c;
-})();
-
 /**
  *
  */
@@ -29,9 +22,9 @@ class Args{
   /**
    * @return {Array<String>}
    */
-  static getArgs(){
+  static getArgs(bo_no_args_error=true){
     const ws_args = WScript.Arguments;
-    if(ArgsStaticConfig.no_args_error){
+    if(bo_no_args_error){
       if(ws_args.Length === 0){
         Utility.echo(msg.no_args);
         WScript.Quit();
@@ -47,4 +40,4 @@ class Args{
   }
 }
 
-export {Args, ArgsStaticConfig};
+export {Args};

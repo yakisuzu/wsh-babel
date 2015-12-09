@@ -17,5 +17,5 @@ excel.executeExcel(Args.getArgs(), (ws_book)=>{
   excel.excelErrorFormatDelete(ws_book);
 });
 
-Logger.print();
+logger.print();
 Utility.echo('Done!');

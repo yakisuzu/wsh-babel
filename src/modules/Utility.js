@@ -32,6 +32,7 @@ class Utility{
   /**
    * @param {String} st_msg
    * @param {Array<String>} ar_args
+   * @return {String}
    */
   static buildMsg(st_msg, ar_args){
     let st_build = st_msg;
