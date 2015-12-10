@@ -1,10 +1,12 @@
-# before npm install
-`npm install babel-cli -g`  
+# before to build
 `npm install`  
 
 # build
-## webpack
-`npm run build-webpack`  
+## build with gulp webpack
+`npm run build-gulp`  
 
-# run
-run dest dir js file  
+## watch to js file
+`npm run build-gulp watch`  
+
+# run for windows
+run to js file in dest folder at cscript.exe  
