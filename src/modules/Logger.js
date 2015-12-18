@@ -69,12 +69,12 @@ class Logger{
    * @param {String}
    * @param {Array<String>}
    */
-  trace(st_msg, ar_args=[]){outputPush('TRACE', Utility.buildMsg(st_msg, ar_args));}
-  debug(st_msg, ar_args=[]){outputPush('DEBUG', Utility.buildMsg(st_msg, ar_args));}
-  info (st_msg, ar_args=[]){outputPush('INFO',  Utility.buildMsg(st_msg, ar_args));}
-  warn (st_msg, ar_args=[]){outputPush('WARN',  Utility.buildMsg(st_msg, ar_args));}
-  error(st_msg, ar_args=[]){outputPush('ERROR', Utility.buildMsg(st_msg, ar_args));}
-  fatal(st_msg, ar_args=[]){outputPush('FATAL', Utility.buildMsg(st_msg, ar_args));}
+  trace(st_msg, ar_args=[]){this.outputPush('TRACE', Utility.buildMsg(st_msg, ar_args));}
+  debug(st_msg, ar_args=[]){this.outputPush('DEBUG', Utility.buildMsg(st_msg, ar_args));}
+  info (st_msg, ar_args=[]){this.outputPush('INFO',  Utility.buildMsg(st_msg, ar_args));}
+  warn (st_msg, ar_args=[]){this.outputPush('WARN',  Utility.buildMsg(st_msg, ar_args));}
+  error(st_msg, ar_args=[]){this.outputPush('ERROR', Utility.buildMsg(st_msg, ar_args));}
+  fatal(st_msg, ar_args=[]){this.outputPush('FATAL', Utility.buildMsg(st_msg, ar_args));}
 
   /**
    * @param {String} st_level

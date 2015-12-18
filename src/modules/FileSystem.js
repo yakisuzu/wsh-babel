@@ -24,6 +24,26 @@ class FileInfo{
 }
 
 /**
+ *
+ */
+const getAppended0 = (st_base)=>{
+  return ('0' + st_base).slice(-2);
+};
+
+/**
+ *
+ */
+const getFormatedDate = (dt)=>{
+  return Utility.buildMsg(msg.yyyymmddHHMM, [
+      dt.getFullYear()
+      , getAppended0(dt.getMonth() + 1)
+      , getAppended0(dt.getDate())
+      , getAppended0(dt.getHours())
+      , getAppended0(dt.getMinutes())
+  ]);
+};
+
+/**
  * @param {Object} ws_itr
  * @return {Object}
  */
@@ -103,14 +123,8 @@ class FileSystem{
       const ar_files = [];
       for(let ws_file of eachEnumerator(ws_folder.Files)){
         const st_path = ws_file.Path;
-        const dt_mod = ws_file.DateLastModified;
-        const st_date_last_modified = Utility.buildMsg(msg.yyyymmddHHMM, [
-          dt_mod.getFullYear()
-          , dt_mod.getMonth() + 1
-          , dt_mod.getDate()
-          , ('0' + dt_mod.getHours()).slice(-2)
-          , ('0' + dt_mod.getMinutes()).slice(-2)
-        ]);
+        const st_date_last_modified = getFormatedDate(new Date(ws_file.DateLastModified));
+
         ar_files.push(new FileInfo(st_path, st_date_last_modified));
       }
       return ar_files;
@@ -120,9 +134,9 @@ class FileSystem{
       let ar_files = [];
       for(let ws_folder of eachEnumerator(ws_folder.SubFolders)){
         // when found regex, skip folder
-        if(this.config.ignore_dir_reg.some((reg)=>{
-          return ws_folder.Path.search(reg) !== -1;
-        })){
+        if(this.config.ignore_dir_reg.some(
+              (reg)=>{return ws_folder.Path.search(reg) !== -1;}
+              )){
           continue;
         }
         ar_files = ar_files.concat(get_folders(ws_folder));
