@@ -6,7 +6,7 @@ import {Utility} from './Utility.js';
 
 const msg = (()=>{
   const m = {};
-  m.no_support = 'Support xls, xlsx, xlsm!';
+  m.no_support = 'Support extention is only xls, xlsx, xlsm!';
   m.error = 'Error! {0}';
 
   m.excel_start = 'Excel Start!';
@@ -183,6 +183,46 @@ class ExcelAdapter{
         ws_del.Delete();
       }
       this.logger.trace(msg.excel_fc_delete_count, [ar_del_fc.length]);
+    }
+  }
+
+  /**
+   * @callback excelAdapter~fu_execute
+   * @param {Object<Worksheet>} ws_sheet
+   */
+  /**
+   * @param {Object<Workbook>} ws_book
+   * @param {excelAdapter~fu_execute} fu_execute
+   */
+  excelEachSheet(ws_book, fu_execute){
+    for(let ws_sheet of eachSheet(this, ws_book)){
+      fu_execute(ws_sheet);
+    }
+  }
+
+  /**
+   * @callback excelAdapter~fu_execute
+   * @param {String} st_sheetname
+   * @param {Number} nu_row
+   * @param {Number} nu_col
+   */
+  /**
+   * @param {Object<Workbook>} ws_book
+   * @param {excelAdapter~fu_execute} fu_execute
+   */
+  excelEachCell(ws_book, fu_execute){
+    for(let ws_sheet of eachSheet(this, ws_book)){
+      const ROW_MIN = ws_sheet.UsedRange.Row;
+      const ROW_MAX = ROW_MIN + ws_sheet.UsedRange.Rows.Count - 1;
+      const COL_MIN = ws_sheet.UsedRange.Columns;
+      const COL_MAX = COL_MIN + ws_sheet.UsedRange.Columns.Count - 1;
+      const SHEET_NAME = ws_sheet.Name;
+
+      for(let nu_row = ROW_MIN; nu_row <= ROW_MAX; nu_row++){
+        for(let nu_col = COL_MIN; nu_col <= COL_MAX; nu_col++){
+          fu_execute(SHEET_NAME, nu_row, nu_col);
+        }
+      }
     }
   }
 
